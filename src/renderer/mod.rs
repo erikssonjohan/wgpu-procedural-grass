@@ -179,9 +179,11 @@ impl Renderer {
     }
 
     fn create_wind_buffer(device: &wgpu::Device) -> wgpu::Buffer {
+        use crate::config::{WIND_STRENGTH, WIND_ANGLE, GRASS_COUNT};
+        
         device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("Wind Uniform Buffer"),
-            contents: bytemuck::cast_slice(&[WIND_STRENGTH, 0.0_f32, GRASS_COUNT as f32, 0.0_f32]),
+            contents: bytemuck::cast_slice(&[WIND_STRENGTH, 0.0_f32, WIND_ANGLE, GRASS_COUNT as f32]),
             usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
         })
     }
@@ -284,12 +286,14 @@ impl Renderer {
     }
 
     fn update_wind_uniforms(&mut self) {
+        use crate::config::{WIND_STRENGTH, WIND_ANGLE};
+        
         let elapsed = self.start_time.elapsed().as_secs_f32();
         let wind_data = [
             WIND_STRENGTH,
             elapsed,
+            WIND_ANGLE,
             self.grass.instance_count() as f32,
-            0.0_f32,
         ];
         self.queue.write_buffer(
             &self.wind_uniform_buffer,

@@ -1,5 +1,7 @@
+use std::f32::consts::PI;
+
 /// Number of grass blade instances to render
-pub const GRASS_COUNT: usize = 10_000;
+pub const GRASS_COUNT: usize = 4_480;
 
 /// Number of segments per grass blade (more = smoother bending)
 pub const BLADE_SEGMENTS: u32 = 6;
@@ -13,6 +15,9 @@ pub const BLADE_HEIGHT: f32 = 1.0;
 /// Wind strength multiplier
 pub const WIND_STRENGTH: f32 = 0.5;
 
+/// Wind direction in radians
+pub const WIND_ANGLE: f32 = 0.0;
+
 /// Camera settings
 pub const CAMERA_INITIAL_DISTANCE: f32 = 25.0;
 pub const CAMERA_MIN_DISTANCE: f32 = 5.0;
@@ -20,7 +25,7 @@ pub const CAMERA_MAX_DISTANCE: f32 = 100.0;
 pub const CAMERA_ROTATION_SPEED: f32 = 0.005;
 pub const CAMERA_ZOOM_SPEED: f32 = 2.0;
 
-/// Sky color
+/// Sky color (light blue)
 pub const SKY_COLOR: wgpu::Color = wgpu::Color {
     r: 0.53,
     g: 0.81,
