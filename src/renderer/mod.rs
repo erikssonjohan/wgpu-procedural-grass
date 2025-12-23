@@ -7,7 +7,7 @@ use crate::grass::mesh::GrassMesh;
 use crate::camera::Camera;
 use crate::camera::controller::CameraController;
 use crate::config::{
-    GRASS_COUNT, WIND_STRENGTH, SKY_COLOR,
+    GRASS_COUNT, SKY_COLOR,
     CAMERA_INITIAL_DISTANCE
 };
 use wgpu::util::DeviceExt;
@@ -29,6 +29,7 @@ pub struct Renderer {
     // Camera
     camera: Camera,
     camera_buffer: wgpu::Buffer,
+    camera_position_buffer: wgpu::Buffer,
     camera_controller: CameraController,
     
     // Compute
@@ -66,6 +67,7 @@ impl Renderer {
         );
         let camera_controller = CameraController::new(CAMERA_INITIAL_DISTANCE, glam::Vec3::ZERO);
         let camera_buffer = Self::create_camera_buffer(&device, &camera);
+        let camera_position_buffer = Self::create_camera_position_buffer(&device, &camera);
 
         // Create uniforms
         let wind_uniform_buffer = Self::create_wind_buffer(&device);
@@ -77,6 +79,7 @@ impl Renderer {
             &render_bind_group_layout,
             &camera_buffer,
             &wind_uniform_buffer,
+            &camera_position_buffer,
         );
 
         // Create pipeline and grass
@@ -107,6 +110,7 @@ impl Renderer {
             depth,
             camera,
             camera_buffer,
+            camera_position_buffer,
             camera_controller,
             compute,
             render_bind_group,
@@ -178,6 +182,15 @@ impl Renderer {
         })
     }
 
+    fn create_camera_position_buffer(device: &wgpu::Device, camera: &Camera) -> wgpu::Buffer {
+        let camera_pos = [camera.position.x, camera.position.y, camera.position.z, 0.0_f32];
+        device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("Camera Position Buffer"),
+            contents: bytemuck::cast_slice(&camera_pos),
+            usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+        })
+    }
+
     fn create_wind_buffer(device: &wgpu::Device) -> wgpu::Buffer {
         use crate::config::{WIND_STRENGTH, WIND_ANGLE, GRASS_COUNT};
         
@@ -212,6 +225,16 @@ impl Renderer {
                     },
                     count: None,
                 },
+                wgpu::BindGroupLayoutEntry {
+                    binding: 2,
+                    visibility: wgpu::ShaderStages::VERTEX | wgpu::ShaderStages::FRAGMENT,
+                    ty: wgpu::BindingType::Buffer {
+                        ty: wgpu::BufferBindingType::Uniform,
+                        has_dynamic_offset: false,
+                        min_binding_size: None,
+                    },
+                    count: None,
+                },
             ],
         })
     }
@@ -221,6 +244,7 @@ impl Renderer {
         layout: &wgpu::BindGroupLayout,
         camera_buffer: &wgpu::Buffer,
         wind_buffer: &wgpu::Buffer,
+        camera_position_buffer: &wgpu::Buffer,
     ) -> wgpu::BindGroup {
         device.create_bind_group(&wgpu::BindGroupDescriptor {
             label: Some("Render Bind Group"),
@@ -233,6 +257,10 @@ impl Renderer {
                 wgpu::BindGroupEntry {
                     binding: 1,
                     resource: wind_buffer.as_entire_binding(),
+                },
+                wgpu::BindGroupEntry {
+                    binding: 2,
+                    resource: camera_position_buffer.as_entire_binding(),
                 },
             ],
         })
@@ -282,6 +310,13 @@ impl Renderer {
             &self.camera_buffer,
             0,
             bytemuck::cast_slice(camera_matrix.as_ref()),
+        );
+        
+        let camera_pos_data = [self.camera.position.x, self.camera.position.y, self.camera.position.z, 0.0_f32];
+        self.queue.write_buffer(
+            &self.camera_position_buffer,
+            0,
+            bytemuck::cast_slice(&camera_pos_data),
         );
     }
 

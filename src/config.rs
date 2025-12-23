@@ -25,7 +25,7 @@ pub const CAMERA_MAX_DISTANCE: f32 = 100.0;
 pub const CAMERA_ROTATION_SPEED: f32 = 0.005;
 pub const CAMERA_ZOOM_SPEED: f32 = 2.0;
 
-/// Sky color (light blue)
+/// Sky color
 pub const SKY_COLOR: wgpu::Color = wgpu::Color {
     r: 0.53,
     g: 0.81,
