@@ -108,7 +108,7 @@ fn hemi_light(normal: vec3<f32>, ground_colour: vec3<f32>, sky_colour: vec3<f32>
 }
 
 fn lambert_light(normal: vec3<f32>, view_dir: vec3<f32>, light_dir: vec3<f32>, light_colour: vec3<f32>) -> vec3<f32> {
-    let wrap = 0.5;
+    let wrap = 0.8;
     let dot_nl = saturate((dot(normal, light_dir) + wrap) / (wrap + 1.0));
     var lighting = vec3<f32>(dot_nl);
     
@@ -135,7 +135,6 @@ fn vs_main(in: VertexInput) -> VertexOutput {
     
      // Determine which side of blade
     let x_side = sign(in.position.x);
-    let z_side = sign(in.position.z);
     
     var scaled_pos = in.position;
     scaled_pos.y *= in.height;
@@ -172,18 +171,19 @@ fn vs_main(in: VertexInput) -> VertexOutput {
     
     let world_pos = grass_local_pos + in.instance_pos;
     
-   
-    
     // View-space thickening
     let view_dir = normalize(camera_pos - world_pos);
-    let grass_face_normal = grass_mat * vec3<f32>(0.0, 0.0, -z_side);
+    let grass_face_normal = grass_mat * vec3<f32>(0.0, 0.0, -1.0);
     
-    let view_dot_normal = saturate(dot(grass_face_normal, view_dir));
-    let view_space_thicken_factor = ease_out(1.0 - view_dot_normal, 2.0) * smoothstep(0.0, 0.5, view_dot_normal);
+    let view_dot_normal = abs(dot(grass_face_normal, view_dir));
+    let view_space_thicken_factor = ease_out(1.0 - view_dot_normal, 12.0) * smoothstep(0.0, 0.05, view_dot_normal);
     
     // Apply thickening in world space along blade
+    let THICKEN_ENABLED = 1.0;
+    let THICKEN_AMOUNT = 0.02;
+    
     var thickened_pos = world_pos;
-    thickened_pos += blade_right * view_space_thicken_factor * (x_side - 0.5) * in.width * 1.5 * -z_side;
+    thickened_pos += blade_right * view_space_thicken_factor * x_side * in.width * THICKEN_AMOUNT * THICKEN_ENABLED;
     
     out.clip_position = view_proj * vec4<f32>(thickened_pos, 1.0);
     
@@ -201,23 +201,29 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
     let light_dir = normalize(vec3<f32>(-1.0, 0.5, 1.0));
     let light_colour = vec3<f32>(1.0, 1.0, 0.9);
     
+    // Flip normal for back-facing fragments (two-sided lighting)
+    var normal = normalize(in.normal);
+    if (dot(normal, view_dir) < 0.0) {
+        normal = -normal;
+    }
+    
     let color_variation = in.blade_hash * 0.1;
     let brightness = in.height_factor * 0.4 + 0.6;
 
     let c1 = vec3<f32>(1.0, 1.0, 0.5);
     let c2 = vec3<f32>(0.05, 0.05, 0.25);
 
-    let ambient_light = hemi_light(normalize(in.normal), c2, c1);
-    let diffuse_light = lambert_light(normalize(in.normal), view_dir, light_dir, light_colour);
-    let specular  = phong_specular(normalize(in.normal), light_dir, view_dir);
-    let lighting = ambient_light*0.8 + diffuse_light*0.5 + specular*0.3;
-    let base_color = vec3<f32>(0.1, 0.5, 0.2);
-
-    // let base_color = vec3<f32>(
-    //     0.2 + color_variation,
-    //     0.7 - color_variation * 0.5,
-    //     0.3 + color_variation * 0.3
-    // );
+    let ambient_light = hemi_light(normal, c2, c1);
+    let diffuse_light = lambert_light(normal, view_dir, light_dir, light_colour);
+    let specular = phong_specular(normal, light_dir, view_dir);
+    let lighting = ambient_light * 1.2 + diffuse_light * 0.3 + specular * 0.1;
+    //let base_color = vec3<f32>(0.1, 0.5, 0.2);
+    
+    let base_color = vec3<f32>(
+        0.2 + color_variation,
+        0.7 - color_variation * 0.5,
+        0.3 + color_variation * 0.3
+    );
     
     let final_color = base_color * lighting;
     let normal_color = normalize(in.normal) * 0.5 + 0.5;

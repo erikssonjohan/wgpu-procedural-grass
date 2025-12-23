@@ -17,9 +17,9 @@ impl GrassInstance {
         Self {
             // should maybe be done on the GPU
             position: [
-                rand::random::<f32>() * 20.0 - 10.0,
+                rand::random::<f32>() * 50.0 - 25.0,
                 0.0,
-                rand::random::<f32>() * 20.0 - 10.0,
+                rand::random::<f32>() * 50.0 - 25.0,
             ],
             wind_sway: 0.0,  
             height: 1.0,     

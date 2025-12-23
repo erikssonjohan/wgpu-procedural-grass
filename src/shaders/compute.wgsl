@@ -95,17 +95,17 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
     
     // Large-scale wave pattern moving along wind direction
     let wind_sample_pos = vec3<f32>(
-        base_pos.x * 0.03 + wind.time * wind_dir.x * 0.2,
+        base_pos.x * 0.03 + wind.time * wind_dir.x * 0.8,
         0.0,
-        base_pos.z * 0.03 + wind.time * wind_dir.z * 0.2
+        base_pos.z * 0.03 + wind.time * wind_dir.z * 0.8
     );
     let wind_strength = noise(wind_sample_pos)*0.6;
     
     // Add secondary wave
     let wave2_pos = vec3<f32>(
-        base_pos.x * 0.08 - wind.time * wind_dir.x * 0.2,
+        base_pos.x * 0.08 - wind.time * wind_dir.x * 0.8,
         0.0,
-        base_pos.z * 0.08 - wind.time * wind_dir.z * 0.2
+        base_pos.z * 0.08 - wind.time * wind_dir.z * 0.8
     );
     let wave2 = noise(wave2_pos) * 0.5;
     
@@ -116,11 +116,11 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
     let animation_sample_pos = vec3<f32>(base_pos.x * 0.2, base_pos.z * 0.2, wind.time * 1.0);
     let random_lean_animation = noise(animation_sample_pos) * 0.3;
     
-    let base_lean = remap(hash2, 0.0, 1.0, -0.2, 0.2);
+    let base_lean = remap(hash2, -0.0, 1.0, -0.2, 0.2);
     
     // Combine all factors for wavy motion
     let lean_factor = combined_wind + random_lean_animation + base_lean;
-    let wind_amount = lean_factor * wind.wind_strength;
+    let wind_amount = lean_factor * wind.wind_strength* 0.8;
     
     var grass = input_positions[index];
     grass.position = base_pos;

@@ -1,7 +1,7 @@
 use std::f32::consts::PI;
 
 /// Number of grass blade instances to render
-pub const GRASS_COUNT: usize = 4_480;
+pub const GRASS_COUNT: usize = 64* 1024;
 
 /// Number of segments per grass blade (more = smoother bending)
 pub const BLADE_SEGMENTS: u32 = 6;
@@ -13,7 +13,7 @@ pub const BLADE_WIDTH: f32 = 0.08;
 pub const BLADE_HEIGHT: f32 = 1.0;
 
 /// Wind strength multiplier
-pub const WIND_STRENGTH: f32 = 0.5;
+pub const WIND_STRENGTH: f32 = 0.8;
 
 /// Wind direction in radians
 pub const WIND_ANGLE: f32 = 0.0;
