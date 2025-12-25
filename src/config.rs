@@ -1,7 +1,7 @@
 use std::f32::consts::PI;
 
 /// Number of grass blade instances to render
-pub const GRASS_COUNT: usize = 64* 1024;
+pub const GRASS_COUNT: usize = 64* 512;
 
 /// Number of segments per grass blade (more = smoother bending)
 pub const BLADE_SEGMENTS: u32 = 6;

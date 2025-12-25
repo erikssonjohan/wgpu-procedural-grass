@@ -29,10 +29,9 @@ struct VertexOutput {
 }
 
 // Todo:
-// calculate new normal with bezier gradient
-// add add view-space thickening to make the grass feel a bit thicker from som angles
 // tweek parameters for bend and sway to get a more natural look 
-// fix normal problem 
+// add shaping to the grass blades (wider at base, tapering to tip)
+// add texture suport
 
 fn bezier(p0: vec3<f32>, p1: vec3<f32>, p2: vec3<f32>, p3: vec3<f32>, t: f32) -> vec3<f32> {
     let one_minus_t = 1.0 - t;
@@ -180,7 +179,7 @@ fn vs_main(in: VertexInput) -> VertexOutput {
     
     // Apply thickening in world space along blade
     let THICKEN_ENABLED = 1.0;
-    let THICKEN_AMOUNT = 0.02;
+    let THICKEN_AMOUNT = 0.04;
     
     var thickened_pos = world_pos;
     thickened_pos += blade_right * view_space_thicken_factor * x_side * in.width * THICKEN_AMOUNT * THICKEN_ENABLED;
@@ -199,7 +198,7 @@ fn vs_main(in: VertexInput) -> VertexOutput {
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
     let view_dir = normalize(camera_pos - in.world_pos);
     let light_dir = normalize(vec3<f32>(-1.0, 0.5, 1.0));
-    let light_colour = vec3<f32>(1.0, 1.0, 0.9);
+    let light_color = vec3<f32>(1.0, 1.0, 0.9);
     
     // Flip normal for back-facing fragments (two-sided lighting)
     var normal = normalize(in.normal);
@@ -208,15 +207,15 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
     }
     
     let color_variation = in.blade_hash * 0.1;
-    let brightness = in.height_factor * 0.4 + 0.6;
+    //let brightness = in.height_factor * 0.4 + 0.6;
 
     let c1 = vec3<f32>(1.0, 1.0, 0.5);
     let c2 = vec3<f32>(0.05, 0.05, 0.25);
 
     let ambient_light = hemi_light(normal, c2, c1);
-    let diffuse_light = lambert_light(normal, view_dir, light_dir, light_colour);
+    let diffuse_light = lambert_light(normal, view_dir, light_dir, light_color);
     let specular = phong_specular(normal, light_dir, view_dir);
-    let lighting = ambient_light * 1.2 + diffuse_light * 0.3 + specular * 0.1;
+    let lighting = ambient_light * 0.5 + diffuse_light * 0.5;
     //let base_color = vec3<f32>(0.1, 0.5, 0.2);
     
     let base_color = vec3<f32>(
@@ -224,8 +223,13 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
         0.7 - color_variation * 0.5,
         0.3 + color_variation * 0.3
     );
+
+    // fake grass AO
+    let ao = remap(pow(in.height_factor, 2.0), 0.0, 1.0, 0.125, 1.0);
     
-    let final_color = base_color * lighting;
+    var final_color = base_color * lighting + specular * 0.25;
+    final_color *= ao;
+
     let normal_color = normalize(in.normal) * 0.5 + 0.5;
     return vec4<f32>(final_color, 1.0);
 }
