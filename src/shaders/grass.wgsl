@@ -137,9 +137,13 @@ fn vs_main(in: VertexInput) -> VertexOutput {
     
     var scaled_pos = in.position;
     scaled_pos.y *= in.height;
-    scaled_pos.x *= in.width;
     
     let height_factor = in.position.y;
+    
+    // sa bit of grass blade shaping
+    let final_width =ease_out(1.0 - height_factor, 4.0);
+    scaled_pos.x *= in.width * final_width;
+
     
     let wind_angle = wind_data.z;
     let wind_axis = vec3<f32>(cos(wind_angle + 1.5708), 0.0, sin(wind_angle + 1.5708));
@@ -175,14 +179,13 @@ fn vs_main(in: VertexInput) -> VertexOutput {
     let grass_face_normal = grass_mat * vec3<f32>(0.0, 0.0, -1.0);
     
     let view_dot_normal = abs(dot(grass_face_normal, view_dir));
-    let view_space_thicken_factor = ease_out(1.0 - view_dot_normal, 12.0) * smoothstep(0.0, 0.05, view_dot_normal);
+    let view_space_thicken_factor = ease_out(1.0 - view_dot_normal, 4.0) * smoothstep(0.0, 0.2, view_dot_normal);
     
-    // Apply thickening in world space along blade
     let THICKEN_ENABLED = 1.0;
     let THICKEN_AMOUNT = 0.04;
     
     var thickened_pos = world_pos;
-    thickened_pos += blade_right * view_space_thicken_factor * x_side * in.width * THICKEN_AMOUNT * THICKEN_ENABLED;
+    thickened_pos += blade_right * view_space_thicken_factor * x_side * in.width * final_width * THICKEN_AMOUNT * THICKEN_ENABLED;
     
     out.clip_position = view_proj * vec4<f32>(thickened_pos, 1.0);
     
