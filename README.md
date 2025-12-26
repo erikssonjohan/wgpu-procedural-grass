@@ -18,10 +18,10 @@ This project simulates a field of grass using instanced rendering with the `wgpu
 - `src/camera/`: Handles camera.
 
 ![Grass](grass.png)
+![Grass](grass2.png)
 
 ## Future Enhancements
 
-- Camera controller
 - Interactive grass (player collision)
 - Multiple grass types (tall/short, stiff/flexible)
 - LOD system for large fields
