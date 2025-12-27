@@ -18,7 +18,6 @@ This project simulates a field of grass using instanced rendering with the `wgpu
 - `src/camera/`: Handles camera.
 
 ![Grass](grass.png)
-![Grass](grass2.png)
 
 ## Future Enhancements
 
