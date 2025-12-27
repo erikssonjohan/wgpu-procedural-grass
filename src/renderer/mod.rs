@@ -1,6 +1,7 @@
 pub mod pipeline;
 pub mod compute;
 pub mod depth;
+pub mod ground;
 
 use crate::grass::Grass;
 use crate::grass::mesh::GrassMesh;
@@ -39,6 +40,9 @@ pub struct Renderer {
     render_bind_group: wgpu::BindGroup,
     wind_uniform_buffer: wgpu::Buffer,
     start_time: Instant,
+
+    // Ground
+    ground: ground::Ground,
 }
 
 impl Renderer {
@@ -98,6 +102,9 @@ impl Renderer {
         // Create depth texture
         let depth = depth::DepthTexture::new(&device, config.width, config.height);
 
+        // Create ground
+        let ground = ground::Ground::new(&device, config.format, &render_bind_group_layout);
+
         Self {
             surface,
             device,
@@ -116,6 +123,7 @@ impl Renderer {
             render_bind_group,
             wind_uniform_buffer,
             start_time: Instant::now(),
+            ground,
         }
     }
 
@@ -374,6 +382,14 @@ impl Renderer {
             occlusion_query_set: None,
         });
 
+        // Render ground
+        render_pass.set_pipeline(&self.ground.pipeline);
+        render_pass.set_bind_group(0, &self.render_bind_group, &[]);
+        render_pass.set_vertex_buffer(0, self.ground.vertex_buffer.slice(..));
+        render_pass.set_index_buffer(self.ground.index_buffer.slice(..), wgpu::IndexFormat::Uint32);
+        render_pass.draw_indexed(0..self.ground.num_indices, 0, 0..1);
+
+        // Render grass
         render_pass.set_pipeline(&self.pipeline.render_pipeline);
         render_pass.set_bind_group(0, &self.render_bind_group, &[]);
         render_pass.set_vertex_buffer(0, self.grass_mesh.vertex_buffer().slice(..));

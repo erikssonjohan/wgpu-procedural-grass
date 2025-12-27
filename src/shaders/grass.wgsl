@@ -141,7 +141,7 @@ fn vs_main(in: VertexInput) -> VertexOutput {
     let height_factor = in.position.y;
     
     // sa bit of grass blade shaping
-    let final_width =ease_out(1.0 - height_factor, 4.0);
+    let final_width =ease_out(1.0 - height_factor, 6.0);
     scaled_pos.x *= in.width * final_width;
 
     
@@ -179,7 +179,7 @@ fn vs_main(in: VertexInput) -> VertexOutput {
     let grass_face_normal = grass_mat * vec3<f32>(0.0, 0.0, -1.0);
     
     let view_dot_normal = abs(dot(grass_face_normal, view_dir));
-    let view_space_thicken_factor = ease_out(1.0 - view_dot_normal, 4.0) * smoothstep(0.0, 0.2, view_dot_normal);
+    let view_space_thicken_factor = ease_out(1.0 - view_dot_normal, 4.0) * smoothstep(0.0, 0.05, view_dot_normal);
     
     let THICKEN_ENABLED = 1.0;
     let THICKEN_AMOUNT = 0.04;
@@ -218,19 +218,19 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
     let ambient_light = hemi_light(normal, c2, c1);
     let diffuse_light = lambert_light(normal, view_dir, light_dir, light_color);
     let specular = phong_specular(normal, light_dir, view_dir);
-    let lighting = ambient_light * 0.5 + diffuse_light * 0.5;
+    let lighting = ambient_light * 0.6 + diffuse_light * 0.4;
     //let base_color = vec3<f32>(0.1, 0.5, 0.2);
     
     let base_color = vec3<f32>(
-        0.2 + color_variation,
-        0.7 - color_variation * 0.5,
+        0.3 + color_variation,
+        0.8 - color_variation * 0.5,
         0.3 + color_variation * 0.3
     );
 
     // fake grass AO
-    let ao = remap(pow(in.height_factor, 2.0), 0.0, 1.0, 0.125, 1.0);
+    let ao = remap(pow(in.height_factor, 2.0), 0.0, 1.0, 0.25, 1.0);
     
-    var final_color = base_color * lighting + specular * 0.25;
+    var final_color = base_color * lighting + specular * 0.125;
     final_color *= ao;
 
     let normal_color = normalize(in.normal) * 0.5 + 0.5;

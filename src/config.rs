@@ -7,13 +7,13 @@ pub const GRASS_COUNT: usize = 64* 512;
 pub const BLADE_SEGMENTS: u32 = 6;
 
 /// Base width of grass blades
-pub const BLADE_WIDTH: f32 = 0.08;
+pub const BLADE_WIDTH: f32 = 0.05;
 
 /// Base height of grass blades
 pub const BLADE_HEIGHT: f32 = 1.0;
 
 /// Wind strength multiplier
-pub const WIND_STRENGTH: f32 = 0.8;
+pub const WIND_STRENGTH: f32 = 0.65;
 
 /// Wind direction in radians
 pub const WIND_ANGLE: f32 = 0.0;

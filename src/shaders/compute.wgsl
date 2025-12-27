@@ -113,14 +113,14 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
     let combined_wind = wind_strength * 1.0;// + wave2;
     
     // Faster turbulence
-    let animation_sample_pos = vec3<f32>(base_pos.x, base_pos.z, wind.time * 4.0);
+    let animation_sample_pos = vec3<f32>(base_pos.x, base_pos.z, wind.time * 2.5);
     let random_lean_animation = noise(animation_sample_pos) * (wind_strength * 0.6 + 0.125);
     
     let base_lean = remap(hash2, -0.0, 1.0, -0.2, 0.2);
     
     // Combine all factors for wavy motion
     let lean_factor = combined_wind + random_lean_animation;// + base_lean;
-    let wind_amount = lean_factor * wind.wind_strength* 1.2;
+    let wind_amount = lean_factor * wind.wind_strength;
     
     var grass = input_positions[index];
     grass.position = base_pos;
