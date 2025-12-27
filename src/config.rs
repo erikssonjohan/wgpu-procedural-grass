@@ -7,7 +7,7 @@ pub const GRASS_COUNT: usize = 64* 512;
 pub const BLADE_SEGMENTS: u32 = 6;
 
 /// Base width of grass blades
-pub const BLADE_WIDTH: f32 = 0.05;
+pub const BLADE_WIDTH: f32 = 0.08;
 
 /// Base height of grass blades
 pub const BLADE_HEIGHT: f32 = 1.0;

@@ -176,13 +176,14 @@ fn vs_main(in: VertexInput) -> VertexOutput {
     
     // View-space thickening
     let view_dir = normalize(camera_pos - world_pos);
-    let grass_face_normal = grass_mat * vec3<f32>(0.0, 0.0, -1.0);
     
-    let view_dot_normal = abs(dot(grass_face_normal, view_dir));
-    let view_space_thicken_factor = ease_out(1.0 - view_dot_normal, 4.0) * smoothstep(0.0, 0.05, view_dot_normal);
+    let view_dot_right = abs(dot(blade_right, view_dir));
     
+    let edge_factor = smoothstep(0.8, 1.0, view_dot_right);
+    let view_space_thicken_factor = edge_factor * edge_factor;
+
     let THICKEN_ENABLED = 1.0;
-    let THICKEN_AMOUNT = 0.04;
+    let THICKEN_AMOUNT = 0.1;
     
     var thickened_pos = world_pos;
     thickened_pos += blade_right * view_space_thicken_factor * x_side * in.width * final_width * THICKEN_AMOUNT * THICKEN_ENABLED;
