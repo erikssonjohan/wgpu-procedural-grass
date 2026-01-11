@@ -14,6 +14,10 @@ struct WindUniforms {
     time: f32,
     wind_angle: f32,
     instance_count: f32,
+    blade_base_height: f32,
+    _padding1: f32,
+    _padding2: f32,
+    _padding3: f32,
 }
 
 @group(0) @binding(0) var<storage, read> input_positions: array<GrassInstance>;
@@ -125,7 +129,7 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
     var grass = input_positions[index];
     grass.position = base_pos;
     grass.wind_sway = wind_amount;
-    grass.height = 0.8 + hash2 * 0.4;
+    grass.height = wind.blade_base_height * (0.8 + hash2 * 0.4);
     grass.width = 0.9 + hash3 * 0.2;
     grass.bend = 1.2 + blade_hash * 0.5;
     grass.tilt = base_lean;

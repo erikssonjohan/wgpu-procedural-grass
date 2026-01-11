@@ -8,8 +8,7 @@ use crate::grass::mesh::GrassMesh;
 use crate::camera::Camera;
 use crate::camera::controller::CameraController;
 use crate::config::{
-    GRASS_COUNT, SKY_COLOR,
-    CAMERA_INITIAL_DISTANCE
+    BLADE_HEIGHT, CAMERA_INITIAL_DISTANCE, GRASS_COUNT, SKY_COLOR
 };
 use wgpu::util::DeviceExt;
 use std::time::Instant;
@@ -204,7 +203,16 @@ impl Renderer {
         
         device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("Wind Uniform Buffer"),
-            contents: bytemuck::cast_slice(&[WIND_STRENGTH, 0.0_f32, WIND_ANGLE, GRASS_COUNT as f32]),
+            contents: bytemuck::cast_slice(&[
+                WIND_STRENGTH,
+                0.0_f32,
+                WIND_ANGLE,
+                GRASS_COUNT as f32,
+                BLADE_HEIGHT,
+                0.0_f32,
+                0.0_f32,
+                0.0_f32,
+                ]),
             usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
         })
     }
@@ -337,6 +345,10 @@ impl Renderer {
             elapsed,
             WIND_ANGLE,
             self.grass.instance_count() as f32,
+            BLADE_HEIGHT,
+            0.0_f32,
+            0.0_f32,
+            0.0_f32,
         ];
         self.queue.write_buffer(
             &self.wind_uniform_buffer,

@@ -1,5 +1,5 @@
 use wgpu::util::DeviceExt;
-use crate::config::{BLADE_SEGMENTS, BLADE_WIDTH, BLADE_HEIGHT};
+use crate::config::{BLADE_SEGMENTS, BLADE_WIDTH};
 
 pub struct GrassMesh {
     vertex_buffer: wgpu::Buffer,
@@ -9,14 +9,17 @@ pub struct GrassMesh {
 
 impl GrassMesh {
     pub fn new(device: &wgpu::Device) -> Self {
-        let segment_height = BLADE_HEIGHT / BLADE_SEGMENTS as f32;
+        // create normalized mesh from 0 to 1
+        // the height is applied in the shader
+        let segment_height = 1.0 / BLADE_SEGMENTS as f32;
         
         let mut vertices = Vec::new();
         let mut indices = Vec::new();
         
         for i in 0..=BLADE_SEGMENTS {
-            let y = i as f32 * segment_height;
-            let taper = 1.0 - (i as f32 / BLADE_SEGMENTS as f32) * 0.7;
+            let y = i as f32 * segment_height;  // 0.0 to 1.0
+            let t = i as f32 / BLADE_SEGMENTS as f32;
+            let taper = 1.0 - t * 0.7;
             
             vertices.push(-BLADE_WIDTH * taper);
             vertices.push(y);
