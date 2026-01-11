@@ -29,8 +29,6 @@ struct VertexOutput {
 }
 
 // Todo:
-// tweek parameters for bend and sway to get a more natural look 
-// add shaping to the grass blades (wider at base, tapering to tip)
 // add texture suport
 
 fn bezier(p0: vec3<f32>, p1: vec3<f32>, p2: vec3<f32>, p3: vec3<f32>, t: f32) -> vec3<f32> {
